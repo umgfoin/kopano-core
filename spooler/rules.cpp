@@ -891,8 +891,8 @@ HRESULT HrProcessRules(const std::string &recip, pym_plugin_intf *pyMapiPlugin,
 	ACTIONS* lpActions = NULL;
 
 	memory_ptr<SPropValue> OOFProps;
-        ULONG cValues;
-        bool bOOFactive = false;
+	ULONG cValues;
+	bool bOOFactive = false;
 
 	SPropValue sForwardProps[4];
 	object_ptr<IECExchangeModifyTable> lpECModifyTable;
@@ -923,25 +923,23 @@ HRESULT HrProcessRules(const std::string &recip, pym_plugin_intf *pyMapiPlugin,
 	}
 	
 	// get OOF-state for recipient-store
-	static constexpr const SizedSPropTagArray(5, sptaStoreProps) = {3, {
-        	PR_EC_OUTOFOFFICE,PR_EC_OUTOFOFFICE_FROM, PR_EC_OUTOFOFFICE_UNTIL,
-        }};
+	static constexpr const SizedSPropTagArray(5, sptaStoreProps) = {3, {PR_EC_OUTOFOFFICE, PR_EC_OUTOFOFFICE_FROM, PR_EC_OUTOFOFFICE_UNTIL,}};
 	hr = lpOrigStore->GetProps(sptaStoreProps, 0, &cValues, &~OOFProps);
-        if (FAILED(hr))
-        	ec_log_err("lpOrigStore->GetProps failed(%x) - OOF-state unavailable", hr);
-        else {
+	if (FAILED(hr)) {
+		ec_log_err("lpOrigStore->GetProps failed(%x) - OOF-state unavailable", hr);
+	} else {
 		bOOFactive = OOFProps[0].ulPropTag == PR_EC_OUTOFOFFICE && OOFProps[0].Value.b;
 
-        	if (bOOFactive) {
-        		time_t ts, now = time(nullptr);
-        		if (OOFProps[1].ulPropTag == PR_EC_OUTOFOFFICE_FROM) {
-        			FileTimeToUnixTime(OOFProps[1].Value.ft, &ts);
-        			bOOFactive &= ts <= now;
-        		}	
-        		if (OOFProps[2].ulPropTag == PR_EC_OUTOFOFFICE_UNTIL) {
-        			FileTimeToUnixTime(OOFProps[2].Value.ft, &ts);
-        			bOOFactive &= now <= ts;
-        		}
+		if (bOOFactive) {
+			time_t ts, now = time(nullptr);
+			if (OOFProps[1].ulPropTag == PR_EC_OUTOFOFFICE_FROM) {
+				FileTimeToUnixTime(OOFProps[1].Value.ft, &ts);
+				bOOFactive &= ts <= now;
+			}
+			if (OOFProps[2].ulPropTag == PR_EC_OUTOFOFFICE_UNTIL) {
+				FileTimeToUnixTime(OOFProps[2].Value.ft, &ts);
+				bOOFactive &= now <= ts;
+			}
 		}
 	}
 
@@ -983,14 +981,14 @@ HRESULT HrProcessRules(const std::string &recip, pym_plugin_intf *pyMapiPlugin,
 		ec_log_debug("Processing rule %s for %s", strRule.c_str(), recip.c_str());
 		auto lpRuleState = lpRowSet->aRow[0].cfind(PR_RULE_STATE);
 		if (lpRuleState != nullptr){
-			if( !(lpRuleState->Value.i & ST_ENABLED)) {
+			if (!(lpRuleState->Value.i & ST_ENABLED)) {
 				ec_log_debug("Rule '%s' is disabled, skipping...", strRule.c_str());
 				continue;
 			}
-                        if( (lpRuleState->Value.i & ST_ONLY_WHEN_OOF) && !bOOFactive) {
-                                ec_log_debug("Rule '%s' active, but doesn't apply (OOF-state == false), skipping...", strRule.c_str());
-                                continue;
-                        }
+			if ((lpRuleState->Value.i & ST_ONLY_WHEN_OOF) && !bOOFactive) {
+				ec_log_debug("Rule '%s' active, but doesn't apply (OOF-state == false), skipping...", strRule.c_str());
+				continue;
+			}
 		}
 
 		lpCondition = NULL;
