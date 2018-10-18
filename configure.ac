@@ -256,7 +256,8 @@ AC_DEFUN([LIBNCURSES_WITH_CONFIG],[
 	AS_IF([test -n "$NCURSES_CONFIG"],
 		[
 			NCURSES_FLAGS=$("$NCURSES_CONFIG" --cflags)
-			NCURSES_LIBS=$("$NCURSES_CONFIG" --libs)
+			# NCURSES_LIBS=$("$NCURSES_CONFIG" --libs)
+                        NCURSES_LIBS="-lncurses -ltinfo"
 		],
 		[
 			dnl just pick the lowest common denominator
