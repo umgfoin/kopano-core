@@ -38,7 +38,7 @@ start() {
 	# Start in background, always succeeds
 	echo -n $"Starting $spamd: "
 	install -dm0775 -o kopano -g kopano /var/run/kopano
-	daemon --pidfile="$pidfile" $SPAMDPROGRAM $SPAMDCONFIG_OPT >/dev/null 2>&1
+	daemon --pidfile="$pidfile" $SPAMDPROGRAM $SPAMDCONFIG_OPT & >/dev/null 2>&1
 	RETVAL=$?
 	unset LC_ALL LANG
 	echo
