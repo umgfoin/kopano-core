@@ -124,7 +124,7 @@ static ECRESULT main2(int argc, char **argv)
 		{ "server_socket", "default:" },
 		{ "run_as_user", "kopano" },
 		{ "run_as_group", "kopano" },
-		{"pid_file", "", CONFIGSETTING_OBSOLETE},
+		{ "pid_file", "/var/run/kopano/monitor.pid" },
 		{"log_method", "auto", CONFIGSETTING_NONEMPTY},
 		{"log_file", ""},
 		{"log_level", "3", CONFIGSETTING_NONEMPTY | CONFIGSETTING_RELOADABLE},
@@ -238,6 +238,8 @@ static ECRESULT main2(int argc, char **argv)
 	act.sa_handler = mo_sighup_immed;
 	sigaction(SIGHUP, &act, nullptr);
 	ec_setup_segv_handler("kopano-monitor", PROJECT_VERSION);
+	if (unix_create_pidfile(argv[0], m_lpThreadMonitor->lpConfig.get(), false) < 0)
+		return E_FAIL;
 	// Init exit threads
 	return running_service();
 }
